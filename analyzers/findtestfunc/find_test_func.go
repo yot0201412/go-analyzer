@@ -3,6 +3,7 @@ package findtestfunc
 import (
 	"go/ast"
 	"go/types"
+	"reflect"
 	"strings"
 
 	"golang.org/x/tools/go/analysis"
@@ -13,26 +14,35 @@ var Analyzer = &analysis.Analyzer{
 	Doc:  "Find test func",
 	Run:  run,
 	FactTypes: []analysis.Fact{
-		new(TestFact),
+		new(FindTestFuncFact),
 	},
-	Requires: []*analysis.Analyzer{},
+	Requires:   []*analysis.Analyzer{},
+	ResultType: reflect.TypeOf(new(FindTestFuncResult)),
 }
 
 func run(pass *analysis.Pass) (interface{}, error) {
+	res := &FindTestFuncResult{}
+	hasFactFiles := make(map[*ast.File]struct{})
 	for _, f := range pass.Files {
 		for _, decl := range f.Decls {
 			if decl, ok := decl.(*ast.FuncDecl); ok && strings.HasPrefix(decl.Name.Name, "Test") {
 				if obj, ok := pass.TypesInfo.Defs[decl.Name].(*types.Func); ok {
-					pass.ExportObjectFact(obj, new(TestFact))
+					hasFactFiles[f] = struct{}{}
+					pass.ExportObjectFact(obj, new(FindTestFuncFact))
 				}
 			}
 		}
 	}
-	return nil, nil
+	res.HasFactFiles = hasFactFiles
+	return res, nil
 }
 
-type TestFact struct {
+type FindTestFuncFact struct {
 	// IsTest bool
 }
 
-func (TestFact) AFact() {}
+func (FindTestFuncFact) AFact() {}
+
+type FindTestFuncResult struct {
+	HasFactFiles map[*ast.File]struct{}
+}

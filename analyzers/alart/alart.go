@@ -1,7 +1,6 @@
 package alart
 
 import (
-	"fmt"
 	"go/ast"
 	"go/types"
 
@@ -19,12 +18,20 @@ var Analyzer = &analysis.Analyzer{
 }
 
 func run2(pass *analysis.Pass) (interface{}, error) {
+	result := pass.ResultOf[findtestfunc.Analyzer].(*findtestfunc.FindTestFuncResult)
+	if len(result.HasFactFiles) == 0 {
+		return nil, nil
+	}
 	for _, f := range pass.Files {
+		// アナライザーの結果はパッケージ別に返ってくるっぽいが、調査
+		_, ok := result.HasFactFiles[f]
+		if !ok {
+			continue
+		}
 		for _, decl := range f.Decls {
 			if decl, ok := decl.(*ast.FuncDecl); ok {
 				if obj, ok := pass.TypesInfo.Defs[decl.Name].(*types.Func); ok {
-					isTestFunc := pass.ImportObjectFact(obj, new(findtestfunc.TestFact))
-					fmt.Println(isTestFunc, decl.Name.Name)
+					isTestFunc := pass.ImportObjectFact(obj, new(findtestfunc.FindTestFuncFact))
 					if isTestFunc {
 						pass.Reportf(decl.Pos(), "This is test func.")
 					}
