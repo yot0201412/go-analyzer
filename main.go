@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/yot0201412/go-analyzer/analyzers"
+	"github.com/yot0201412/go-analyzer/analyzers/alart"
+	"github.com/yot0201412/go-analyzer/analyzers/findtestfunc"
 	"golang.org/x/tools/go/analysis/multichecker"
 )
 
 func main() {
 	multichecker.Main(
-		analyzers.FindTestFunc,
-		analyzers.SampleAnalyzer,
+		findtestfunc.Analyzer,
+		alart.Analyzer,
 	)
 }

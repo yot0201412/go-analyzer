@@ -1,4 +1,4 @@
-package analyzers
+package findtestfunc
 
 import (
 	"go/ast"
@@ -8,7 +8,7 @@ import (
 	"golang.org/x/tools/go/analysis"
 )
 
-var FindTestFunc = &analysis.Analyzer{
+var Analyzer = &analysis.Analyzer{
 	Name: "FindTestFunc",
 	Doc:  "Find test func",
 	Run:  run,
@@ -23,7 +23,6 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		for _, decl := range f.Decls {
 			if decl, ok := decl.(*ast.FuncDecl); ok && strings.HasPrefix(decl.Name.Name, "Test") {
 				if obj, ok := pass.TypesInfo.Defs[decl.Name].(*types.Func); ok {
-					// _ = obj
 					pass.ExportObjectFact(obj, new(TestFact))
 				}
 			}
