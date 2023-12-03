@@ -19,12 +19,9 @@ func TestSample(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := samples.Sample(tt.args.i); got != tt.want {
+			if got := samples.Hoge(tt.args.i); got != tt.want {
 				t.Errorf("Sample() = %v, want %v", got, tt.want)
 			}
 		})
 	}
-}
-
-func Hoge() {
 }

@@ -43,6 +43,8 @@ type FindTestFuncFact struct {
 
 func (FindTestFuncFact) AFact() {}
 
+func (*FindTestFuncFact) String() string { return "findTestFuncFact" }
+
 type FindTestFuncResult struct {
 	HasFactFiles map[*ast.File]struct{}
 }
